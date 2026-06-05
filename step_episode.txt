@@ -1,0 +1,369 @@
+Theek hai — main tumhe **complete step-by-step API guide** de raha hoon (Thunder Client ready), jisme:
+
+* ✔ exact URL (http wala)
+* ✔ method
+* ✔ body (har jaha needed ho)
+* ✔ kya hoga result
+
+Tum seedha copy–paste karke test kar sakte ho.
+
+---
+
+# 🌐 BASE URL
+
+```bash
+http://localhost:3001/api/content
+```
+
+---
+
+# ✅ 1. CREATE CONTENT (POST)
+
+### 🔗 URL:
+
+```bash
+POST http://localhost:3001/api/content
+```
+
+### 📦 Body (Seasons Structure):
+
+```json
+{
+  "title": "Sold Out on You",
+  "type": "series",
+  "description": "Romantic drama about love and secrets",
+  "thumbnail": "https://image.jpg",
+  "trailerUrl": "https://youtube.com/watch?v=xyz",
+  "genre": ["romance", "drama"],
+  "releaseYear": 2026,
+  "rating": 8.5,
+  "tmdbId": 12345,
+  "source": "tmdb",
+  "seasons": [
+    {
+      "seasonNumber": 1,
+      "episodes": [
+        {
+          "episodeNumber": 1,
+          "title": "First Meeting",
+          "videoUrl": "https://streamtape.com/e/abc",
+          "thumbnail": "https://image-ep1.jpg",
+          "servers": [
+            {
+              "name": "Streamtape",
+              "url": "https://streamtape.com/e/abc"
+            },
+            {
+              "name": "Backup",
+              "url": "https://backup.com/video1"
+            }
+          ]
+        },
+        {
+          "episodeNumber": 2,
+          "title": "Confessions",
+          "videoUrl": "https://streamtape.com/e/def",
+          "thumbnail": "https://image-ep2.jpg",
+          "servers": [
+            {
+              "name": "Streamtape",
+              "url": "https://streamtape.com/e/def"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+👉 ✔ Supports "movie", "series", "anime" types
+👉 ✔ Multiple servers per episode (fallback support)
+
+---
+
+# ✅ 2. GET ALL CONTENT
+
+```bash
+GET http://localhost:3001/api/content
+```
+
+---
+
+# ✅ 3. GET SINGLE CONTENT
+
+```bash
+GET http://localhost:3001/api/content/{id}
+```
+
+---
+
+# ✅ 4. FULL UPDATE (PUT ⚠️ REPLACE)
+
+### 🔗 URL:
+
+```bash
+PUT http://localhost:3001/api/content/{id}
+```
+
+### 📦 Body (⚠️ FULL DATA dena padega):
+
+```json
+{
+  "title": "Updated Series Title",
+  "type": "series",
+  "description": "Updated description",
+  "rating": 9.0,
+  "trailerUrl": "https://youtube.com/watch?v=new",
+  "genre": ["romance", "drama", "thriller"],
+  "releaseYear": 2026,
+  "seasons": [
+    {
+      "seasonNumber": 1,
+      "episodes": [
+        {
+          "episodeNumber": 1,
+          "title": "Episode 1",
+          "servers": [
+            {
+              "name": "Streamtape",
+              "url": "https://streamtape.com/e/abc"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+👉 ⚠️ Yeh pura content replace karega
+👉 ✔ Purana data overwrite ho jayega
+
+---
+
+# ✅ 5. PARTIAL UPDATE (PATCH)
+
+```bash
+PATCH http://localhost:3001/api/content/{id}
+```
+
+### 📦 Body (Update title only):
+
+```json
+{
+  "title": "New Title Only"
+}
+```
+
+### 📦 Body (Update trailer):
+
+```json
+{
+  "trailerUrl": "https://youtube.com/watch?v=xyz"
+}
+```
+
+### 📦 Body (Update rating & genre):
+
+```json
+{
+  "rating": 9.5,
+  "genre": ["action", "thriller"]
+}
+```
+
+👉 ✔ Send sirf woh fields jo update karne ho
+
+---
+
+# ✅ 6. ADD EPISODE(S) 🔥
+
+### 🔗 URL:
+
+```bash
+PATCH http://localhost:3001/api/content/{id}
+```
+
+### 📦 Body (Add to existing Season):
+
+```json
+{
+  "seasonNumber": 1,
+  "episodes": [
+    {
+      "episodeNumber": 3,
+      "title": "Episode 3",
+      "videoUrl": "https://streamtape.com/e/xyz",
+      "thumbnail": "https://image-ep3.jpg",
+      "servers": [
+        {
+          "name": "Streamtape",
+          "url": "https://streamtape.com/e/xyz"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### 📦 Body (Add New Season):
+
+```json
+{
+  "seasonNumber": 2,
+  "episodes": [
+    {
+      "episodeNumber": 1,
+      "title": "Season 2 - Episode 1",
+      "videoUrl": "https://streamtape.com/e/new1",
+      "servers": [
+        {
+          "name": "Default",
+          "url": "https://streamtape.com/e/new1"
+        }
+      ]
+    }
+  ]
+}
+```
+
+👉 ✔ Existing episodes safe
+👉 ✔ Creates new season if needed
+👉 ✔ Multiple servers per episode
+
+---
+
+# ✅ 7. UPDATE EPISODE
+
+### 🔗 URL:
+
+```bash
+PATCH http://localhost:3001/api/content/{id}
+```
+
+### 📦 Body (Update existing episode):
+
+```json
+{
+  "seasonNumber": 1,
+  "episodeNumber": 3,
+  "update": {
+    "title": "Episode 3 - Updated Title",
+    "videoUrl": "https://new-streamtape.com/e/xyz",
+    "thumbnail": "https://new-image.jpg",
+    "servers": [
+      {
+        "name": "Streamtape",
+        "url": "https://new-streamtape.com/e/xyz"
+      },
+      {
+        "name": "Backup Server",
+        "url": "https://backup-2.com/video"
+      }
+    ]
+  }
+}
+```
+
+👉 ✔ Update title, url, servers
+👉 ✔ Multiple servers supported
+👉 ✔ Partial updates (send only what you need)
+
+---
+
+# ✅ 8. DELETE EPISODE ❌
+
+### 🔗 URL:
+
+```bash
+DELETE http://localhost:3001/api/content/{id}
+```
+
+### 📦 Body (Delete from Season 1):
+
+```json
+{
+  "seasonNumber": 1,
+  "episodeNumber": 3
+}
+```
+
+### 📦 Body (Delete from Season 2):
+
+```json
+{
+  "seasonNumber": 2,
+  "episodeNumber": 1
+}
+```
+
+### 📦 Body (Delete from any Season):
+
+```json
+{
+  "seasonNumber": 3,
+  "episodeNumber": 5
+}
+```
+
+👉 ❌ Deletes specific episode from specified season
+👉 ✔ Other episodes remain safe
+👉 ✔ Other seasons remain intact
+👉 ✔ Works for any season number
+
+---
+
+# ✅ 9. DELETE CONTENT ❌
+
+```bash
+DELETE http://localhost:3001/api/content/{id}
+```
+
+---
+
+# 🧠 QUICK MEMORY TABLE
+
+| Action         | Method | URL                         | Notes |
+| -------------- | ------ | --------------------------- | ----- |
+| Create         | POST   | `/content`                  | Support seasons structure |
+| Get all        | GET    | `/content`                  | |
+| Get one        | GET    | `/content/:id`              | |
+| Full update    | PUT    | `/content/:id`              | Replace all fields |
+| Partial update | PATCH  | `/content/:id`              | Update specific fields |
+| Add episode    | PATCH  | `/content/:id`              | Use seasonNumber |
+| Update episode | PATCH  | `/content/:id`              | Use seasonNumber + episodeNumber |
+| Delete episode | DELETE | `/content/:id`              | Use seasonNumber + episodeNumber |
+| Delete content | DELETE | `/content/:id`              | |
+
+---
+
+# ⚠️ MOST IMPORTANT RULE
+
+👉 **PUT = replace (danger)**
+👉 **PATCH + $push = safe add**
+👉 **DELETE + $pull = remove**
+
+---
+
+# 🎯 LATEST FEATURES
+
+Ab tum:
+
+* ✅ Seasons & Episodes structure support
+* ✅ Multiple servers per episode (fallback support)
+* ✅ Trailer URL support
+* ✅ Movie, Series, Anime types
+* ✅ Episode add/update/delete safely
+* ✅ TMDB ID for external integration
+* ✅ Auto-normalization of videoUrl → servers
+
+---
+
+# ⚠️ IMPORTANT RULES
+
+👉 **Type enum**: "movie" | "series" | "anime"
+👉 **Servers**: Each episode can have multiple server objects
+👉 **Seasons**: Always use seasonNumber when adding/updating episodes
+👉 **VideoUrl**: Auto-converts to servers[0] if servers array is empty
+👉 **Safe Operations**: Episodes in one season don't affect others

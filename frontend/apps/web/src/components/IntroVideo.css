@@ -1,0 +1,19 @@
+.intro-container {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000000;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999999;
+}
+
+.intro-video {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    object-fit: cover;
+}
