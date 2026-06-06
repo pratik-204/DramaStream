@@ -105,7 +105,7 @@ const buildContentPayload = (body = {}) => {
 
 export const getFeaturedContent = async (req, res) => {
     try {
-        const limit = parsePositiveInt(req.query.limit, 5);
+        const limit = parsePositiveInt(req.validatedQuery?.limit ?? '5', 5);
         const records = await Content.find({}).sort({ rating: -1, views: -1, createdAt: -1 }).limit(limit);
         return res.json({ items: records.map(normalizeContent) });
     } catch (err) {
@@ -115,7 +115,7 @@ export const getFeaturedContent = async (req, res) => {
 
 export const getTrendingContent = async (req, res) => {
     try {
-        const limit = parsePositiveInt(req.query.limit, 12);
+        const limit = parsePositiveInt(req.validatedQuery?.limit ?? '12', 12);
         const hasViews = await Content.exists({
             $or: [
                 { views: { $gt: 0 } },
@@ -225,7 +225,7 @@ export const getSimilarContent = async (req, res) => {
 
 export const getTop10ByType = async (req, res) => {
     try {
-        const type = String(req.query.type || "").toLowerCase();
+        const type = String(req.validatedQuery?.type || "").toLowerCase();
         if (!VALID_TYPES.includes(type)) return res.status(400).json({ message: 'Invalid type' });
         const records = await Content.find({ type }).sort({ rating: -1, views: -1, createdAt: -1 }).limit(10);
         return res.json({ items: records.map(normalizeContent) });
@@ -236,7 +236,7 @@ export const getTop10ByType = async (req, res) => {
 
 export const getContentList = async (req, res) => {
     try {
-        const { type, genre, language, year, rating, page = '1', limit = '1000' } = req.query;
+        const { type, genre, language, year, rating, page = '1', limit = '1000' } = req.validatedQuery || {};
         const filter = {};
         if (type && VALID_TYPES.includes(String(type).toLowerCase())) filter.type = String(type).toLowerCase();
         if (genre) filter.genre = { $in: [String(genre)] };
@@ -267,7 +267,7 @@ export const getContentList = async (req, res) => {
 
 export const searchContent = async (req, res) => {
     try {
-        const q = String(req.query.q || '').trim();
+        const q = String(req.validatedQuery?.q || '').trim();
 
         if (!q) {
             return res.json({ items: [] });

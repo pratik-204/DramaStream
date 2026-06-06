@@ -1,3 +1,7 @@
+// Debug: print Vite API URL (will be `undefined` if not exposed to Vite)
+// eslint-disable-next-line no-console
+console.log(import.meta.env.VITE_API_URL);
+
 const apiClient = {
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
     token: localStorage.getItem('authToken'),

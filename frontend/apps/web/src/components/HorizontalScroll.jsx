@@ -29,8 +29,8 @@ const HorizontalScroll = ({ title, children, viewAllLink }) => {
     };
 
     return (
-        <div className="relative py-3 group/section">
-            <div className="flex items-end justify-between mb-3 px-4 md:px-5">
+        <div className="relative py-6 group/section">
+            <div className="flex items-end justify-between mb-4 px-4 md:px-8">
                 <h2 className="text-2xl md:text-3xl font-bold tracking-tight">{title}</h2>
                 {viewAllLink && (
                     <Link to={viewAllLink} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
@@ -40,12 +40,6 @@ const HorizontalScroll = ({ title, children, viewAllLink }) => {
             </div>
 
             <div className="relative">
-                {/* Left gradient fade overlay - always visible */}
-                <div className="absolute left-0 top-0 bottom-0 w-12 md:w-16 bg-gradient-to-r from-background via-background/60 to-transparent z-40 pointer-events-none" />
-                
-                {/* Right gradient fade overlay - always visible */}
-                <div className="absolute right-0 top-0 bottom-0 w-12 md:w-16 bg-gradient-to-l from-background via-background/60 to-transparent z-20 pointer-events-none" />
-
                 {showLeft && (
                     <div className="absolute left-0 top-1/4 w-16 flex items-center justify-start px-2 opacity-0 group-hover/section:opacity-100 transition-opacity duration-300 z-30 pointer-events-auto">
                         <Button
@@ -63,11 +57,9 @@ const HorizontalScroll = ({ title, children, viewAllLink }) => {
                 <div
                     ref={scrollRef}
                     onScroll={handleScroll}
-                    className="flex items-start gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 pt-2"
+                    className="flex items-start gap-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide px-4 md:px-8 pb-4 pt-2"
                 >
-                    <div className="w-4 md:w-20 shrink-0" />
                     {children}
-                    <div className="w-4 md:w-20 shrink-0" />
                 </div>
 
                 {showRight && (

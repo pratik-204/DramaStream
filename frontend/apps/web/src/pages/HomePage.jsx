@@ -167,7 +167,7 @@ const HomePage = () => {
 						<div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent" />
 					</div>
 
-					<div className="relative z-10 mt-20 pl-2 md:pl-2 lg:pl-6 xl:pl-8 pr-4 md:pr-8">
+					<div className="relative z-10 mt-20 pl-2 md:pl-4 lg:pl-6 xl:pl-8 pr-4 md:pr-8">
 						<div className="max-w-2xl space-y-6">
 							{hero.genres && hero.genres.length > 0 && (
 								<div className="flex flex-wrap gap-2">

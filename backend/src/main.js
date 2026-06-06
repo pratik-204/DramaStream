@@ -7,7 +7,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 const envSchema = z.object({
-    MONGO_URI: z.string().min(1, { message: 'MONGO_URI is required' }),
+    MONGODB_URI: z.string().min(1, { message: 'MONGODB_URI is required' }),
     PORT: z.string().min(1, { message: 'PORT is required' }),
 });
 
@@ -17,8 +17,6 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import mongoSanitize from 'express-mongo-sanitize';
-import xssClean from 'xss-clean';
 
 import routes from "./routes/index.js";
 import { errorMiddleware } from './middleware/error.js';
@@ -61,7 +59,7 @@ app.use(helmet({
     },
 }));
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 app.use(morgan('combined'));
 app.use(globalRateLimit);
@@ -75,8 +73,14 @@ app.use(express.urlencoded({
     limit: BodyLimit,
 }));
 
-app.use(xssClean());
-app.use(mongoSanitize());
+// xss-clean is incompatible with Express 5 because it tries to assign req.query directly.
+// That causes: "Cannot set property query of #<IncomingMessage> which has only a getter".
+// Disable it for now.
+// app.use(xssClean());
+
+// express-mongo-sanitize is incompatible with Express 5 for req.query mutation.
+// Remove it until a compatible sanitization solution is available.
+// app.use(mongoSanitize());
 
 // ✅ REGISTER ROUTES (ONLY ONCE)
 app.use("/", routes);

@@ -9,7 +9,23 @@ const validator = (schema, source) => (req, res, next) => {
         });
     }
 
-    req[source] = result.data;
+    switch (source) {
+        case 'body':
+            req.body = result.data;
+            break;
+
+        case 'params':
+            req.params = result.data;
+            break;
+
+        case 'query':
+            req.validatedQuery = result.data;
+            break;
+
+        default:
+            req[source] = result.data;
+    }
+
     next();
 };
 

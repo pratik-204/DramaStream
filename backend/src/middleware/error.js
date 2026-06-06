@@ -2,6 +2,7 @@ import logger from '../utils/logger.js';
 
 export const errorMiddleware = (err, req, res, next) => {
     logger.error('Error:', err.message);
+    logger.error(err.stack);
 
     if (err.name === 'ValidationError') {
         return res.status(400).json({
