@@ -12,9 +12,12 @@ import {
 	updateEpisode,
 	migrateAllContent,
 	deleteEpisode,
-	deleteContent
+	deleteContent,
+	createContent,
+	updateContent,
 } from "../controllers/contentController.js";
-import { createContent, updateContent } from "../controllers/contentController.js";
+import { validateBody } from '../middleware/validate.js';
+import { createContentSchema, updateContentSchema, updateTrailerSchema, addEpisodeSchema, updateEpisodeSchema } from '../schemas/contentSchemas.js';
 
 const router = express.Router();
 
@@ -23,13 +26,13 @@ router.get("/trending", getTrendingContent);
 router.get("/top10", getTop10ByType);
 router.get("/search", searchContent);
 router.get("/", getContentList);
-router.patch("/:id/trailer", updateContentTrailer);
+router.patch("/:id/trailer", validateBody(updateTrailerSchema), updateContentTrailer);
 router.get("/similar/:id", getSimilarContent);
 router.get("/:id", getContentById);
-router.post("/", createContent);
-router.put("/:id", updateContent);
-router.patch("/:id/episodes", addEpisode);
-router.patch("/:id/episode", updateEpisode);
+router.post("/", validateBody(createContentSchema), createContent);
+router.put("/:id", validateBody(updateContentSchema), updateContent);
+router.patch("/:id/episodes", validateBody(addEpisodeSchema), addEpisode);
+router.patch("/:id/episode", validateBody(updateEpisodeSchema), updateEpisode);
 router.post("/migrate-all", migrateAllContent);
 router.delete("/:id/seasons/:seasonNumber/episodes/:episodeNumber", deleteEpisode);
 router.delete("/:id", deleteContent);

@@ -1,14 +1,24 @@
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { z } from 'zod';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+
+const envSchema = z.object({
+    MONGO_URI: z.string().min(1, { message: 'MONGO_URI is required' }),
+    PORT: z.string().min(1, { message: 'PORT is required' }),
+});
+
+const env = envSchema.parse(process.env);
 
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
+import mongoSanitize from 'express-mongo-sanitize';
+import xssClean from 'xss-clean';
 
 import routes from "./routes/index.js";
 import { errorMiddleware } from './middleware/error.js';
@@ -24,26 +34,35 @@ connectDB();
 
 // ✅ Middlewares
 app.set('trust proxy', true);
+app.disable('x-powered-by');
 
 const allowedOrigins = (process.env.CORS_ORIGIN || '')
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean);
 
-app.use(helmet());
-if (process.env.NODE_ENV === 'production') {
-    app.use(cors({
-        origin(origin, callback) {
-            if (allowedOrigins.length === 0) return callback(new Error('CORS origin not configured'));
-            if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
-            return callback(new Error('Not allowed by CORS'));
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production'
+        ? allowedOrigins
+        : true,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+};
+
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'"],
+            objectSrc: ["'none'"],
+            upgradeInsecureRequests: [],
         },
-        credentials: true,
-    }));
-} else {
-    // Development: allow all origins to avoid CORS friction in local environment
-    app.use(cors({ origin: true, credentials: true }));
-}
+    },
+}));
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 app.use(morgan('combined'));
 app.use(globalRateLimit);
 
@@ -56,6 +75,9 @@ app.use(express.urlencoded({
     limit: BodyLimit,
 }));
 
+app.use(xssClean());
+app.use(mongoSanitize());
+
 // ✅ REGISTER ROUTES (ONLY ONCE)
 app.use("/", routes);
 // ✅ Error handling
@@ -67,7 +89,7 @@ app.use((req, res) => {
 });
 
 // ✅ Server start
-const port = process.env.PORT || 3001;
+const port = Number(env.PORT) || 3001;
 
 app.listen(port, () => {
     logger.info(`🚀 API Server running on http://localhost:${port}`);
